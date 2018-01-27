@@ -1,0 +1,79 @@
+* {
+  margin: 0;
+  padding: 0;
+  outline: none;
+  border-radius: 0;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background-color: #ebebeb;
+}
+
+#toolbar {
+  height: 50px;
+  background-color: #444;
+  width: 100%;
+  color: #fff;
+  line-height: 50px;
+}
+
+#container {
+  overflow: auto;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  top: 50px;
+}
+
+#editor-column,
+#preview-column {
+  width: 50%;
+  height: 100%;
+  overflow: auto;
+  position: relative;
+  background-color: #fff;
+}
+#preview-column {
+  padding:20px;
+  background: #eee;
+  -moz-box-sizing: border-box;  /*Firefox3.5+*/
+  -webkit-box-sizing: border-box; /*Safari3.2+*/
+  -o-box-sizing: border-box; /*Opera9.6*/
+  -ms-box-sizing: border-box; /*IE8*/
+  box-sizing: border-box; /*W3C标准(IE9+，Safari5.1+,Chrome10.0+,Opera10.6+都符合box-sizing的w3c标准语法)*/
+}
+
+
+.pull-left {
+  float: left;
+}
+
+.pull-right {
+  float: right;
+}
+
+#mdeditor,
+#preview,
+#panel-editor,
+#panel-preview {
+  height: 100%;
+  width: 100%;
+}
+
+
+.ace_scrollbar{width:7px;}
+.ace_scrollbar::-webkit-scrollbar{height:10px;width:7px;background:transparent}
+.ace_scrollbar::-webkit-scrollbar:hover{background:rgba(128,128,128,0.1)}
+.ace_scrollbar::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.3);-webkit-border-radius:6px}
+.ace_scrollbar::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,0.6)}
+.ace_scrollbar::-webkit-scrollbar-corner{background:#000}
+.ace_scrollbar.ace_dark .ace_scrollbar::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.3);-webkit-border-radius:6px}
+.ace_scrollbar.ace_dark .ace_scrollbar::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.6)}
+.ace_scrollbar.ace_scroller{right:4px !important}
+.ace_scrollbar.ace_scrollbar-v{right:4px !important}
+.ace_scrollbar#preview{right:2px}

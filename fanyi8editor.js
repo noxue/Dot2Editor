@@ -4,13 +4,20 @@
    * 初始化操作
    */
   function init($editor) {
-    $editor.setTheme('ace/theme/chrome');
+    $editor.setTheme('ace/theme/xcode');
     $editor.getSession().setMode('ace/mode/markdown');
     $editor.renderer.setShowPrintMargin(false);
+    $editor.setHighlightGutterLine(false);
     $editor.setFontSize(16);
-    $editor.setOption("wrap", "free");
+    // ace.require("ace/ext/language_tools");
+    $editor.setOptions({
+      wrap: "free", //自动换行
+      // enableBasicAutocompletion: true,
+      // enableSnippets: true,
+      // enableLiveAutocompletion: true
+    });
 
-    $editor.setHighlightActiveLine(true);
+    $editor.setHighlightActiveLine(false);
     $editor.setOptions({
       enableBasicAutocompletion: true,
       enableSnippets: false,
@@ -28,6 +35,8 @@
       },
       readOnly: false // 如果不需要使用只读模式，这里设置false
     });
+
+    $editor.focus();
   }
 
   /**
@@ -124,8 +133,8 @@
   }
 
 
-  var ace_editor = null;
-
+  window.ace_editor = null;
+  
   //加载必须的js
   loadScript();
 
@@ -136,16 +145,15 @@
      * }
      */
     Create: function (opts) {
-      
+
       opts = opts || {};
       ace_editor = ace.edit(opts.selector);
       init(ace_editor);
       ChangeFontSize(ace_editor);
 
 
-      $("#mdeditor").keyup(function () {
+      ace_editor.on("change", function(e){
         $("#preview").html(marked(ace_editor.getValue()));
-        console.log(ace_editor.getValue());
       });
 
       $("#theme").change(function () {
