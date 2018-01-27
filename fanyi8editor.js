@@ -13,31 +13,104 @@
     $editor.setOptions({
       wrap: "free", //自动换行
       // enableBasicAutocompletion: true,
-      // enableSnippets: true,
+      enableSnippets: true,
       // enableLiveAutocompletion: true
     });
 
+    addCommands($editor);
     $editor.setHighlightActiveLine(false);
-    $editor.setOptions({
-      enableBasicAutocompletion: true,
-      enableSnippets: false,
-      enableLiveAutocompletion: true
-    });
+    $editor.focus();
+  }
 
+
+  //绑定快捷命令
+  function addCommands($editor) {
     $editor.commands.addCommand({
-      name: 'myCommand',
+      name: 'parse',
       bindKey: {
-        win: 'Ctrl-M',
-        mac: 'Command-M'
+        win: 'Ctrl-S',
+        mac: 'Command-S'
       },
       exec: function (editor) {
         console.log(editor.getValue());
       },
       readOnly: false // 如果不需要使用只读模式，这里设置false
     });
-
-    $editor.focus();
   }
+
+  function paste(editor,obj) {
+    window.document.getElementById(obj).addEventListener("paste", function (e) {
+      var cbd = e.clipboardData;
+      var ua = window.navigator.userAgent;
+
+      // 如果是 Safari 直接 return
+      if (!(e.clipboardData && e.clipboardData.items)) {
+        return;
+      }
+
+      // Mac平台下Chrome49版本以下 复制Finder中的文件的Bug Hack掉
+      if (cbd.items && cbd.items.length === 2 && cbd.items[0].kind === "string" && cbd.items[1].kind === "file" &&
+        cbd.types && cbd.types.length === 2 && cbd.types[0] === "text/plain" && cbd.types[1] === "Files" &&
+        ua.match(/Macintosh/i) && Number(ua.match(/Chrome\/(\d{2})/i)[1]) < 49) {
+        return;
+      }
+
+      for (var i = 0; i < cbd.items.length; i++) {
+        var item = cbd.items[i];
+        if (item.kind == "file") {
+          var blob = item.getAsFile();
+          if (blob.size === 0) {
+            return;
+          }
+          // blob 就是从剪切板获得的文件 可以进行上传或其他操作
+          editor.setReadOnly(true);
+          var animateHtml = "<div class='wrapper'><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>";
+          $("body").append($(animateHtml));
+          
+        }
+      }
+    }, false);
+  }
+
+
+  function uploadImgFromPaste(file, type, isChrome) {  
+    var formData = new FormData();  
+    formData.append('image', file);  
+    formData.append('submission-type', type);   
+    var xhr = new XMLHttpRequest();  
+    xhr.open('POST', '/upload_image_by_paste');  
+    xhr.onload = function () {    
+      if (xhr.readyState === 4) {      
+        if (xhr.status === 200) {        
+          var data = JSON.parse(xhr.responseText),
+                      tarBox = document.getElementById('tar_box');        
+          if (isChrome) {          
+            var img = document.createElement('img');          
+            img.className = 'my_img';          
+            img.src = data.store_path;          
+            tarBox.appendChild(img);        
+          } else {          
+            var imgList = document.querySelectorAll('#tar_box img'),
+                          len = imgList.length,
+                          i;          
+            for (i = 0; i < len; i++) {            
+              if (imgList[i].className !== 'my_img') {              
+                imgList[i].className = 'my_img';              
+                imgList[i].src = data.store_path;            
+              }          
+            }        
+          }       
+        } else {        
+          console.log(xhr.statusText);      
+        }    
+      };  
+    };  
+    xhr.onerror = function (e) {    
+      console.log(xhr.statusText);  
+    }  
+    xhr.send(formData);
+  }
+
 
   /**
    * 改变文字大小
@@ -134,7 +207,7 @@
 
 
   window.ace_editor = null;
-  
+
   //加载必须的js
   loadScript();
 
@@ -152,13 +225,15 @@
       ChangeFontSize(ace_editor);
 
 
-      ace_editor.on("change", function(e){
+      ace_editor.on("change", function (e) {
         $("#preview").html(marked(ace_editor.getValue()));
       });
 
       $("#theme").change(function () {
         ace_editor.setTheme("ace/theme/" + $(this).children('option:selected').val());
       });
+
+      paste(ace_editor,opts.selector);
 
     },
   };
