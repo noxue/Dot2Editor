@@ -1,7 +1,6 @@
 <?php
 
-if (($_FILES["file"]["type"] == "image/png")
-    && ($_FILES["file"]["size"] < 20000000))
+if (($_FILES["file"]["type"] == "image/png") || true)
 {
     if ($_FILES["file"]["error"] > 0)
     {
@@ -14,7 +13,8 @@ if (($_FILES["file"]["type"] == "image/png")
 //        echo "Size: " . ($_FILES["file"]["size"] / 1024) . " Kb<br />";
 //        echo "Temp file: " . $_FILES["file"]["tmp_name"] . "<br />";
 
-        $fileName = "upload/" . rand(1000,1000000).".".substr($_FILES["file"]["name"], strrpos($_FILES["file"]["name"], '.') + 1);;
+        $ext = substr($_FILES["file"]["name"], strrpos($_FILES["file"]["name"], '.') + 1);
+        $fileName = "upload/" . rand(1000,1000000).".".$ext;
         if (file_exists($fileName))
         {
             echo $_FILES["file"]["name"] . " already exists. ";
@@ -23,7 +23,16 @@ if (($_FILES["file"]["type"] == "image/png")
         {
             move_uploaded_file($_FILES["file"]["tmp_name"],
                 $fileName);
-            echo  $fileName;
+
+            header('Content-Type: application/json');
+
+            echo  json_encode([
+                "code"=>0,
+                "src"=>$fileName,
+                "alt"=>$_FILES["file"]["name"],
+                "isImage"=>in_array(strtolower($ext),["jpg","gif","jpeg","bmp","png"]),
+                "errMsg"=>""
+            ]);
         }
     }
 }
