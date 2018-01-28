@@ -2,78 +2,173 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Document</title>
-  <link rel="stylesheet" href="./css/font-awesome.min.css">
-  <link rel="stylesheet" href="./css/fanyi8editor.css">
-  <link rel="stylesheet" href="./css/github-markdown.css">
-  <style>
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="./css/font-awesome.min.css">
+    <link rel="stylesheet" href="./css/fanyi8editor.css">
+    <link rel="stylesheet" href="./css/github-markdown.css">
+    <style>
+    </style>
 </head>
 
 <body>
-  <div style="width:100%; height:600px;margin-top:100px;" id="editor">
+<div style="width:100%; height:600px;margin-top:100px;" id="editor">
     <div class="fanyi8editor">
-      <div id='toolbar'>
-        <i class="fa fa-undo" name="undo" unselectable="on"></i>
-        <i class="fa fa-repeat" name="redo" unselectable="on"></i>
-        <i class="fa fa-bold" name="bold" unselectable="on"></i>
-        <i class="fa fa-strikethrough" name="del" unselectable="on"></i>
-        <i class="fa fa-italic" name="italic" unselectable="on"></i>
-        <i class="fa fa-font" name="uppercase" unselectable="on"></i>
-        <i class="fa fa-minus" name="hr" unselectable="on"></i>
-        <i class="fa fa-link" name="link" unselectable="on"></i>
-        <i class="fa fa-code" name="code" unselectable="on"></i>
-        <i class="fa fa-table" name="table" unselectable="on"></i>
-        <i class="fa fa-desktop" name="preview" unselectable="on"></i>
-        <i class="fa fa-eraser" name="clear" unselectable="on"></i>
-        <i class="fa fa-search" name="search" unselectable="on"></i>
-        <i class="fa fa-question-circle" name="help" unselectable="on"></i>
-        <i class="fa fa-info-circle" name="info" unselectable="on"></i>
-        <i class="fa fa-list-ul" name="info" unselectable="on"></i>
-        <i class="fa fa-list-ol" name="info" unselectable="on"></i>
-        <i class="fa fa-anchor" name="info" unselectable="on"></i>
-        <i class="fa fa-picture-o" name="info" unselectable="on"></i>
-        <i class="fa fa-code" name="info" unselectable="on"></i>
-        <i class="fa fa-file-code-o" name="info" unselectable="on"></i>
-        <i class="fa fa-clock-o" name="info" unselectable="on"></i>
-        <i class="fa fa-smile-o" name="info" unselectable="on"></i>
-        <i class="fa fa-copyright" name="info" unselectable="on"></i>
-        <i class="fa fa-eye" name="info" unselectable="on"></i>
-        <i class="fa fa-eye-slash" name="info" unselectable="on"></i>
-        <i class="fa fa-desktop" name="info" unselectable="on"></i>
-        <i class="fa fa-arrows-alt" name="info" unselectable="on"></i>
-        <i class="fa fa-question-circle" name="info" unselectable="on"></i>
-      </div>
-      <div id='container'>
-        <div id='editor-column'>
-          <div id='panel-editor'>
-            <div class="editor-content"></div>
-          </div>
+        <div class='toolbar'>
+            <i class="fa fa-undo" name="undo" unselectable="on"></i>
+            <i class="fa fa-repeat" name="redo" unselectable="on"></i>
+            <i class="fa fa-bold" name="bold" unselectable="on"></i>
+            <i class="fa fa-strikethrough" name="del" unselectable="on"></i>
+            <i class="fa fa-italic" name="italic" unselectable="on"></i>
+            <i class="fa fa-font" name="uppercase" unselectable="on"></i>
+            <i class="fa fa-minus" name="hr" unselectable="on"></i>
+            <i class="fa fa-link" name="link" unselectable="on"></i>
+            <i class="fa fa-code" name="code" unselectable="on"></i>
+            <i class="fa fa-table" name="table" unselectable="on"></i>
+            <i class="fa fa-desktop" name="preview" unselectable="on"></i>
+            <i class="fa fa-eraser" name="clear" unselectable="on"></i>
+            <i class="fa fa-search" name="search" unselectable="on"></i>
+            <i class="fa fa-question-circle" name="help" unselectable="on"></i>
+            <i class="fa fa-info-circle" name="info" unselectable="on"></i>
+            <i class="fa fa-list-ul" name="info" unselectable="on"></i>
+            <i class="fa fa-list-ol" name="info" unselectable="on"></i>
+            <i class="fa fa-anchor" name="info" unselectable="on"></i>
+            <i class="fa fa-picture-o" name="info" unselectable="on"></i>
+            <i class="fa fa-code" name="info" unselectable="on"></i>
+            <i class="fa fa-file-code-o" name="info" unselectable="on"></i>
+            <i class="fa fa-clock-o" name="info" unselectable="on"></i>
+            <i class="fa fa-smile-o" name="info" unselectable="on"></i>
+            <i class="fa fa-copyright" name="info" unselectable="on"></i>
+            <i class="fa fa-eye" name="info" unselectable="on"></i>
+            <i class="fa fa-eye-slash" name="info" unselectable="on"></i>
+            <i class="fa fa-desktop" name="info" unselectable="on"></i>
+            <i class="fa fa-arrows-alt" name="info" unselectable="on"></i>
+            <i class="fa fa-question-circle" name="info" unselectable="on"></i>
         </div>
-        <div id='preview-column'>
-          <div id='panel-preview'>
-            <div id="preview" class="markdown-body"></div>
-          </div>
+        <div class='container'>
+            <div class='editor-column'>
+                <div class='panel-editor'>
+                    <div class="editor-content"></div>
+                </div>
+            </div>
+            <div class='preview-column'>
+                <div class='panel-preview'>
+                    <div class="preview markdown-body"></div>
+                </div>
+            </div>
+            <div style='clear:both;height:0; width:100%;'></div>
         </div>
-        <div style='clear:both;height:0; width:100%;'></div>
-      </div>
-      <div class="drag"></div>
+        <!--<div class="drag"></div>-->
     </div>
-  </div>
-  <script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
-  <script src="./fanyi8editor.js"></script>
-  <script src="./js/ace/ext-language_tools.js"></script>
-  <script>
-    var editor = window.FanYi8Editor.Create(".editor-content",{
-    	upload:{
-    		url:"/upload.php",
-            constumfield:"value" //自定义值，例如用来放csrf token
-        }
-    });
-  </script>
+</div>
+
+
+
+<div style="width:100%; height:600px;margin-top:100px;" id="editor1">
+    <div class="fanyi8editor">
+        <div class='toolbar'>
+            <i class="fa fa-undo" name="undo" unselectable="on"></i>
+            <i class="fa fa-repeat" name="redo" unselectable="on"></i>
+            <i class="fa fa-bold" name="bold" unselectable="on"></i>
+            <i class="fa fa-strikethrough" name="del" unselectable="on"></i>
+            <i class="fa fa-italic" name="italic" unselectable="on"></i>
+            <i class="fa fa-font" name="uppercase" unselectable="on"></i>
+            <i class="fa fa-minus" name="hr" unselectable="on"></i>
+            <i class="fa fa-link" name="link" unselectable="on"></i>
+            <i class="fa fa-code" name="code" unselectable="on"></i>
+            <i class="fa fa-table" name="table" unselectable="on"></i>
+            <i class="fa fa-desktop" name="preview" unselectable="on"></i>
+            <i class="fa fa-eraser" name="clear" unselectable="on"></i>
+            <i class="fa fa-search" name="search" unselectable="on"></i>
+            <i class="fa fa-question-circle" name="help" unselectable="on"></i>
+            <i class="fa fa-info-circle" name="info" unselectable="on"></i>
+            <i class="fa fa-list-ul" name="info" unselectable="on"></i>
+            <i class="fa fa-list-ol" name="info" unselectable="on"></i>
+            <i class="fa fa-anchor" name="info" unselectable="on"></i>
+            <i class="fa fa-picture-o" name="info" unselectable="on"></i>
+            <i class="fa fa-code" name="info" unselectable="on"></i>
+            <i class="fa fa-file-code-o" name="info" unselectable="on"></i>
+            <i class="fa fa-clock-o" name="info" unselectable="on"></i>
+            <i class="fa fa-smile-o" name="info" unselectable="on"></i>
+            <i class="fa fa-copyright" name="info" unselectable="on"></i>
+            <i class="fa fa-eye" name="info" unselectable="on"></i>
+            <i class="fa fa-eye-slash" name="info" unselectable="on"></i>
+            <i class="fa fa-desktop" name="info" unselectable="on"></i>
+            <i class="fa fa-arrows-alt" name="info" unselectable="on"></i>
+            <i class="fa fa-question-circle" name="info" unselectable="on"></i>
+        </div>
+        <div class='container'>
+            <div class='editor-column'>
+                <div class='panel-editor'>
+                    <div class="editor-content"></div>
+                </div>
+            </div>
+            <div class='preview-column'>
+                <div class='panel-preview'>
+                    <div class="preview markdown-body"></div>
+                </div>
+            </div>
+            <div style='clear:both;height:0; width:100%;'></div>
+        </div>
+        <!--<div class="drag"></div>-->
+    </div>
+</div>
+
+
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+<script src="./fanyi8editor.js"></script>
+<script src="./js/ace/ext-language_tools.js"></script>
+<script>
+	var editor = new FanYi8Editor("#editor", {
+		upload: {
+
+			//上传地址
+			url: "/upload.php",
+
+			//自定义的文件提交的名称，后端根据这个获取文件
+			name: "image",
+
+			//自定义的键值对json，或者一个函数返回这样的json，通过post一起提交
+			//配置函数的区别是，每次提交都会调用函数，如果参数值是每次都会变化的，就用函数，比如七牛上传的时候要获取token）
+			kvs: {
+				k1: "v1",
+				k2: "v2",
+			}
+		}
+	});
+
+	editor.addCommand({
+			name: 'parse',
+			bindKey: {
+				win: 'Ctrl-R',
+				mac: 'Command-R'
+			},
+			exec: function (editor) {
+				console.log("hhhh:"+editor.getValue());
+			},
+			readOnly: false // 如果不需要使用只读模式，这里设置false
+		});
+
+	var editor1 = new FanYi8Editor("#editor1", {
+		upload: {
+
+			//上传地址
+			url: "/upload.php",
+
+			//自定义的文件提交的名称，后端根据这个获取文件
+			name: "image",
+
+			//自定义的键值对json，或者一个函数返回这样的json，通过post一起提交
+			//配置函数的区别是，每次提交都会调用函数，如果参数值是每次都会变化的，就用函数，比如七牛上传的时候要获取token）
+			kvs: {
+				k1: "v1",
+				k2: "v2",
+			}
+		}
+	});
+</script>
 </body>
 
 </html>

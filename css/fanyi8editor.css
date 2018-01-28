@@ -14,7 +14,7 @@
     overflow: hidden;
 }
 
-.fanyi8editor > #toolbar {
+.fanyi8editor > .toolbar {
     height: 50px;
     background-color: #444;
     width: 100%;
@@ -23,15 +23,15 @@
     margin-top: -50px;
 }
 
-.fanyi8editor > #container {
+.fanyi8editor > .container {
     overflow: auto;
     position: relative;
     height: 100%;
     width: 100%;
 }
 
-.fanyi8editor > #container > #editor-column,
-.fanyi8editor > #container > #preview-column {
+.fanyi8editor > .container > .editor-column,
+.fanyi8editor > .container > .preview-column {
     width: 50%;
     height: 100%;
     overflow: auto;
@@ -40,7 +40,7 @@
     float: left;
 }
 
-.fanyi8editor > #container > #preview-column {
+.fanyi8editor > .container > .preview-column {
     padding: 20px;
     background: #f7f7f7;
     -moz-box-sizing: border-box;
@@ -56,9 +56,9 @@
 }
 
 .fanyi8editor .editor-content,
-.fanyi8editor #preview,
-.fanyi8editor #panel-editor,
-.fanyi8editor #panel-preview {
+.fanyi8editor .preview,
+.fanyi8editor .panel-editor,
+.fanyi8editor .panel-preview {
     height: 100%;
     width: 100%;
 }
