@@ -38,7 +38,7 @@
     });
   }
 
-  function paste(editor,obj) {
+  function paste(editor, obj) {
     window.document.getElementById(obj).addEventListener("paste", function (e) {
       var cbd = e.clipboardData;
       var ua = window.navigator.userAgent;
@@ -63,32 +63,64 @@
             return;
           }
           // blob 就是从剪切板获得的文件 可以进行上传或其他操作
+
+          console.log(cbd);
           editor.setReadOnly(true);
           var animateHtml = "<div class='wrapper'><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>";
           $("body").append($(animateHtml));
-          
+          uploadImgFromPaste(editor,blob,"image/png");
+          $(".wrapper").remove();
+
         }
       }
     }, false);
   }
 
 
-  function uploadImgFromPaste(file, type, isChrome) {  
+  function uploadImgFromPaste(editor,file, type) {
+
+		var formData = new FormData();
+		formData.append("file",file);
+		$.ajax({
+			url : "/upload.php",
+			type : 'POST',
+			data : formData,
+      // 告诉jQuery不要去处理发送的数据
+			processData : false,
+      // 告诉jQuery不要去设置Content-Type请求头
+			contentType : false,
+			beforeSend:function(){
+				console.log("正在进行，请稍候");
+			},
+			success : function(responseStr) {
+			  console.log(responseStr);
+				editor.insert("![]("+responseStr+")");
+				editor.setReadOnly(false);
+			},
+			error : function(responseStr) {
+				console.log("error");
+			}
+		});
+
+
+		return; 
     var formData = new FormData();  
-    formData.append('image', file);  
+    formData.append('file', file);  
     formData.append('submission-type', type);   
     var xhr = new XMLHttpRequest();  
-    xhr.open('POST', '/upload_image_by_paste');  
+    xhr.open('POST', '/upload.php');  
     xhr.onload = function () {    
       if (xhr.readyState === 4) {      
-        if (xhr.status === 200) {        
+        if (xhr.status === 200) {   
+          console.log(xhr.responseText);
+          return;     
           var data = JSON.parse(xhr.responseText),
-                      tarBox = document.getElementById('tar_box');        
+            tarBox = document.getElementById('tar_box');        
           if (isChrome) {          
             var img = document.createElement('img');          
             img.className = 'my_img';          
             img.src = data.store_path;          
-            tarBox.appendChild(img);        
+            document.body.appendChild(img);        
           } else {          
             var imgList = document.querySelectorAll('#tar_box img'),
                           len = imgList.length,
@@ -206,24 +238,62 @@
   }
 
 
+  function uuid() {
+    var s = [];
+    var hexDigits = "0123456789abcdef";
+    for (var i = 0; i < 36; i++) {
+      s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1);
+    }
+    s[14] = "4"; // bits 12-15 of the time_hi_and_version field to 0010
+    s[19] = hexDigits.substr((s[19] & 0x3) | 0x8, 1); // bits 6-7 of the clock_seq_hi_and_reserved to 01
+    s[8] = s[13] = s[18] = s[23] = "-";
+
+    var uuid = s.join("");
+    return uuid;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   window.ace_editor = null;
 
   //加载必须的js
   loadScript();
 
   obj.FanYi8Editor = {
-    /**
-     * {
-     *  selector:"fanyi8editor" //必须是id
-     * }
-     */
-    Create: function (opts) {
 
-      opts = opts || {};
-      ace_editor = ace.edit(opts.selector);
+    opts:{},
+    Create: function (selector,opts) {
+
+      this.opts = opts || {};
+
+      var id = "fanyi8editor-" + uuid();
+
+      $(selector).attr("id", id)
+
+      ace_editor = ace.edit(id);
+
       init(ace_editor);
       ChangeFontSize(ace_editor);
-
 
       ace_editor.on("change", function (e) {
         $("#preview").html(marked(ace_editor.getValue()));
@@ -233,7 +303,7 @@
         ace_editor.setTheme("ace/theme/" + $(this).children('option:selected').val());
       });
 
-      paste(ace_editor,opts.selector);
+      paste(ace_editor, id);
 
     },
   };

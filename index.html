@@ -14,34 +14,63 @@
 </head>
 
 <body>
-
-
-  <div id='toolbar'>
-      <i class="fa fa-undo" name="undo" unselectable="on"></i>
-      <i class="fa fa-bold" name="bold" unselectable="on"></i>
-  </div>
-  <div id='container'>
-    <div id='editor-column' class='pull-left'>
-      <div id='panel-editor'>
-        <!--编辑区-->
-        <div class="editor-content" id="mdeditor"></div>
+  <div style="width:100%; height:600px;" id="editor">
+    <div class="fanyi8editor">
+      <div id='toolbar'>
+        <i class="fa fa-undo" name="undo" unselectable="on"></i>
+        <i class="fa fa-repeat" name="redo" unselectable="on"></i>
+        <i class="fa fa-bold" name="bold" unselectable="on"></i>
+        <i class="fa fa-strikethrough" name="del" unselectable="on"></i>
+        <i class="fa fa-italic" name="italic" unselectable="on"></i>
+        <i class="fa fa-font" name="uppercase" unselectable="on"></i>
+        <i class="fa fa-minus" name="hr" unselectable="on"></i>
+        <i class="fa fa-link" name="link" unselectable="on"></i>
+        <i class="fa fa-code" name="code" unselectable="on"></i>
+        <i class="fa fa-table" name="table" unselectable="on"></i>
+        <i class="fa fa-desktop" name="preview" unselectable="on"></i>
+        <i class="fa fa-eraser" name="clear" unselectable="on"></i>
+        <i class="fa fa-search" name="search" unselectable="on"></i>
+        <i class="fa fa-question-circle" name="help" unselectable="on"></i>
+        <i class="fa fa-info-circle" name="info" unselectable="on"></i>
+        <i class="fa fa-list-ul" name="info" unselectable="on"></i>
+        <i class="fa fa-list-ol" name="info" unselectable="on"></i>
+        <i class="fa fa-anchor" name="info" unselectable="on"></i>
+        <i class="fa fa-picture-o" name="info" unselectable="on"></i>
+        <i class="fa fa-code" name="info" unselectable="on"></i>
+        <i class="fa fa-file-code-o" name="info" unselectable="on"></i>
+        <i class="fa fa-clock-o" name="info" unselectable="on"></i>
+        <i class="fa fa-smile-o" name="info" unselectable="on"></i>
+        <i class="fa fa-copyright" name="info" unselectable="on"></i>
+        <i class="fa fa-eye" name="info" unselectable="on"></i>
+        <i class="fa fa-eye-slash" name="info" unselectable="on"></i>
+        <i class="fa fa-desktop" name="info" unselectable="on"></i>
+        <i class="fa fa-arrows-alt" name="info" unselectable="on"></i>
+        <i class="fa fa-question-circle" name="info" unselectable="on"></i>
+      </div>
+      <div id='container'>
+        <div id='editor-column'>
+          <div id='panel-editor'>
+            <div class="editor-content"></div>
+          </div>
+        </div>
+        <div id='preview-column'>
+          <div id='panel-preview'>
+            <div id="preview" class="markdown-body"></div>
+          </div>
+        </div>
+        <div style='clear:both;height:0; width:100%;'></div>
       </div>
     </div>
-    <div id='preview-column' class='pull-right'>
-      <div id='panel-preview'>
-        <!--显示区-->
-        <div id="preview" class="markdown-body"></div>
-
-      </div>
-    </div>
   </div>
-
   <script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
   <script src="./fanyi8editor.js"></script>
   <script src="./js/ace/ext-language_tools.js"></script>
   <script>
-    var editor = window.FanYi8Editor.Create({
-      selector: "mdeditor"
+    var editor = window.FanYi8Editor.Create(".editor-content",{
+    	upload:{
+    		url:"/upload.php",
+            constumfield:"value" //自定义值，例如用来放csrf token
+        }
     });
   </script>
 </body>
