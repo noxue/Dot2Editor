@@ -7,6 +7,8 @@
 	window.FanYi8Editor = function (selector, opts) {
 
 
+		//下面是绑定到对象中的方法
+		this.addCommand = addCommand;
 
 		//保存配置信息
 		var config = opts || {};
@@ -14,34 +16,29 @@
 		//ace编辑器实例
 		var editor = null;
 
+		//是否开启实时预览，默认开启，当屏幕很窄的时候隐藏
+		var isPrev = true;
+
+		//是否开启编辑，当预览效果的时候隐藏编辑区域。
+		var isEdit = true;
+
 		//因为ace编辑器要求指定id来创建，考虑到同一个网页可能多个编辑器，所以就用唯一标识符来表示当前的编辑器
 		var id = "fanyi8editor-" + uuid();
 
 		//给编辑器设置唯一的id属性
-		$(selector+" .editor-content").attr("id", id);
+		$(selector + " .editor-content").attr("id", id);
 
 		//编辑器节点（原生js获取的dom节点）
 		var editorNode = window.document.getElementById(id);
 
 		//初始化编辑器
-		init();
+		initEditor();
 
 
-
-		//绑定拖拽上传文件相关事件
-		bindDrag();
-
-		//绑定滚动鼠标和Ctrl + - 改变文字大小
-		bindChangeFontSize();
-
-		//绑定粘贴上传图片事件
-		bindPaste();
-
-		var that = null;
 		/**
 		 * 初始化操作
 		 */
-		function init() {
+		function initEditor() {
 			//创建ace编辑器实例
 			editor = ace.edit(id);
 			editor.setTheme('ace/theme/xcode');
@@ -62,16 +59,23 @@
 			//一开始让编辑器获取焦点
 			editor.focus();
 
-
-
 			editor.on("change", function (e) {
-				$(selector+" .preview").html(marked(editor.getValue()));
+				$(selector + " .preview").html(marked(editor.getValue()));
 			});
 
-			that = this;
 
-			//绑定默认的命令，比如ctrl+s保存
+			//绑定滚动鼠标和Alt + - 改变文字大小
+			bindChangeFontSize();
+
+			//如果配置了上传文件，就绑定拖拽和粘贴上传文件
+			if (config.upload) {
+				bindDrag();
+				bindPaste();
+			}
+
+			//绑定默认的命令，比如Alt+s保存
 			bindCommands();
+
 		}
 
 		//绑定快捷命令
@@ -79,9 +83,8 @@
 			editor.commands.addCommand(command);
 		}
 
-		this.addCommand = addCommand;
 
-		function bindCommands(){
+		function bindCommands() {
 			addCommand({
 				name: 'parse',
 				bindKey: {
@@ -93,6 +96,174 @@
 				},
 				readOnly: false // 如果不需要使用只读模式，这里设置false
 			});
+
+			//加粗
+			addCommand({
+				name: 'bold',
+				bindKey: {
+					win: 'Alt-B',
+					mac: 'Alt-B'
+				},
+				exec: function (editor) {
+					var v = editor.getSelectedText();
+					if (v == "") {
+						var p = editor.getCursorPosition();
+						editor.insert("****");
+						p.column += 2;
+						editor.moveCursorToPosition(p);
+					} else {
+						editor.insert("**" + v + "**");
+					}
+				},
+				readOnly: true // 如果不需要使用只读模式，这里设置false
+			});
+
+			//调用函数开始绑定h1-h6
+			h(1);
+			//绑定h1-h6的快捷键
+			function h(i) {
+				addCommand({
+					name: 'H' + i,
+					bindKey: {
+						win: 'Alt-' + i,
+						mac: 'Alt-' + i
+					},
+					exec: function (editor) {
+						//移到行首
+						editor.navigateLineStart();
+						editor.insert(repeat("#", i) + " ");
+						//移到行尾
+						editor.navigateLineEnd();
+					},
+					readOnly: true // 如果不需要使用只读模式，这里设置false
+				});
+				//如果定不等于6，就调用自身。这里用循环变量有问题，所以采用递归的方式
+				if (i < 7)
+					h(i + 1);
+			}
+
+
+			//a标签
+			addCommand({
+				name: 'a',
+				bindKey: {
+					win: 'Alt-A',
+					mac: 'Alt-A'
+				},
+				exec: function (editor) {
+					var p = editor.getCursorPosition();
+					var v = editor.getSelectedText();
+					if (v == "") {
+						editor.insert("[]()");
+						p.column += 1;
+						editor.moveCursorToPosition(p);
+					} else {
+						//删除原有内容，然后添加组合的内容
+						editor.remove();
+						//获取最新的位置
+						p = editor.getCursorPosition();
+						//计算输入链接的坐标位置
+						p.column += (3 + v.length);
+						editor.insert("[" + v + "]()");
+						//让光标移动到填写链接的地方
+						editor.moveCursorToPosition(p);
+					}
+				},
+				readOnly: true // 如果不需要使用只读模式，这里设置false
+			});
+
+			//img
+			addCommand({
+				name: 'img',
+				bindKey: {
+					win: 'Alt-I',
+					mac: 'Alt-I'
+				},
+				exec: function (editor) {
+					var p = editor.getCursorPosition();
+					editor.insert("![]()");
+					p.column += 4;
+					editor.moveCursorToPosition(p);
+				},
+				readOnly: true // 如果不需要使用只读模式，这里设置false
+			});
+
+
+			//hr
+			addCommand({
+				name: 'hr',
+				bindKey: {
+					win: 'Alt-H',
+					mac: 'Alt-H'
+				},
+				exec: function (editor) {
+					var p = editor.getCursorPosition();
+					editor.insert("***");
+					p.column += 3;
+					editor.moveCursorToPosition(p);
+				},
+				readOnly: true // 如果不需要使用只读模式，这里设置false
+			});
+
+			//line
+			addCommand({
+				name: 'line',
+				bindKey: {
+					win: 'Alt-L',
+					mac: 'Alt-L'
+				},
+				exec: function (editor) {
+					var p = editor.getCursorPosition();
+					editor.insert("---");
+					p.column += 3;
+					editor.moveCursorToPosition(p);
+				},
+				readOnly: true // 如果不需要使用只读模式，这里设置false
+			});
+
+
+			addCommand({
+				name: 'edit',
+				bindKey: {
+					win: 'Alt-E',
+					mac: 'Alt-E'
+				},
+				exec: function (editor) {
+
+
+				},
+				readOnly: false // 如果不需要使用只读模式，这里设置false
+			});
+
+			//table
+			addCommand({
+				name: 'table',
+				bindKey: {
+					win: 'Alt-T',
+					mac: 'Alt-T'
+				},
+				exec: function (editor) {
+					var str = window.prompt("请输入行和列，用空格隔开，例如：3 5  就表示生成一个3行5列的表格");
+					if (!str) {
+						return;
+					}
+
+					var arr = str.split(/\s+/);
+					if (arr.length < 2) {
+						alert("请输入正确的行和列数据");
+						return;
+					}
+					var row = arr[0];
+					var column = arr[1];
+
+					editor.insert("|" + repeat("|", column - 2) + "\n" +
+						"-|-" + repeat("|-", column - 2) + "\n" +
+						"|" + repeat("|", column - 2) + "\n"
+						+ repeat("|" + repeat("|", column - 2) + "\n", row - 2));
+				},
+				readOnly: true // 如果不需要使用只读模式，这里设置false
+			});
+
 		}
 
 		/**
@@ -157,14 +328,22 @@
 				//如果是一个函数，就调用并获取返回值，配置一个函数的区别是，每次都会调用
 				if (typeof kvs === "function") {
 					kvs = kvs();
+
+					//如果函数返回false，那就不需要上传
+					if (kvs == false) {
+						return;
+					}
 				}
 
+				//如果配置是合法的json对象
 				if (isJSON(kvs)) {
 					for (var k in kvs) {
 						formData.append(k, kvs[k]);
 					}
+				} else {  //不合法,不上传
+					alert("上传文件配置中的内容必须是json对象");
+					return;
 				}
-
 			}
 
 			//上传文件
@@ -212,7 +391,7 @@
 				// chrome 浏览器直接加上下面这个样式就行了，但是ff不识别
 				window.document.body.style.zoom = 'reset';
 				window.document.addEventListener('keydown', function (event) {
-					if ((event.ctrlKey === true || event.metaKey === true)) {
+					if ((event.AltKey === true || event.metaKey === true)) {
 						var i = 0;
 						var stop = false; //是否阻止事件
 						if (event.which === 107 || event.which === 189) { //+
@@ -254,7 +433,7 @@
 				};
 
 				function handleMouseWheel(event) {
-					if (!(event.ctrlKey === true || event.metaKey === true)) return;
+					if (!(event.AltKey === true || event.metaKey === true)) return;
 
 					EventUtil.stopPropagation(event);
 					event = EventUtil.getEvent(event);
@@ -323,6 +502,9 @@
 	}
 
 
+	//下面放一些工具函数
+
+
 	function uuid() {
 		var s = [];
 		var hexDigits = "0123456789abcdef";
@@ -343,4 +525,7 @@
 		return isjson;
 	}
 
+	function repeat(target, n) {
+		return (new Array(n + 1)).join(target);
+	}
 })($);
