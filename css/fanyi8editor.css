@@ -20,7 +20,21 @@
     width: 100%;
     color: #fff;
     line-height: 50px;
+    margin: 0;
     margin-top: -50px;
+    padding: 0 10px;
+    list-style: none;
+    cursor:default;
+}
+
+.fanyi8editor > .toolbar > li {
+    display: inline-block;
+    margin:auto 3px;
+    cursor: pointer;
+}
+
+.fanyi8editor > .toolbar > li:hover{
+    color: #f4421c;
 }
 
 .fanyi8editor > .container {
@@ -53,6 +67,31 @@
     /*IE8*/
     box-sizing: border-box;
     /*W3C标准(IE9+，Safari5.1+,Chrome10.0+,Opera10.6+都符合box-sizing的w3c标准语法)*/
+
+    position: relative;
+}
+
+.fanyi8editor > .container > .preview-column > .close-preview {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    background: #444;
+    color: #fff;
+    display: none;
+    width: 30px;
+    height: 30px;
+    line-height: 26px;
+    text-align: center;
+    font-size: 30px;
+    -webkit-border-radius: 15px;
+    -moz-border-radius: 15px;
+    border-radius: 15px;
+    cursor: pointer;
+    opacity: 0.8;
+}
+
+.fanyi8editor > .container > .preview-column > .close-preview:hover {
+    background: #666;
 }
 
 .fanyi8editor .editor-content,
@@ -103,39 +142,47 @@
     height: 60px;
     background-color: #67CF22;
     position: fixed;
-    top:50%;
-    left:50%;
-    margin:-30px 0 0 -30px;
+    top: 50%;
+    left: 50%;
+    margin: -30px 0 0 -30px;
     -webkit-animation: rotateplane 1.2s infinite ease-in-out;
     animation: rotateplane 1.2s infinite ease-in-out;
 }
 
 @-webkit-keyframes rotateplane {
-    0% { -webkit-transform: perspective(120px) }
-    50% { -webkit-transform: perspective(120px) rotateY(180deg) }
-    100% { -webkit-transform: perspective(120px) rotateY(180deg)  rotateX(180deg) }
+    0% {
+        -webkit-transform: perspective(120px)
+    }
+    50% {
+        -webkit-transform: perspective(120px) rotateY(180deg)
+    }
+    100% {
+        -webkit-transform: perspective(120px) rotateY(180deg) rotateX(180deg)
+    }
 }
 
 @keyframes rotateplane {
     0% {
         transform: perspective(120px) rotateX(0deg) rotateY(0deg);
         -webkit-transform: perspective(120px) rotateX(0deg) rotateY(0deg)
-    } 50% {
-          transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg);
-          -webkit-transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg)
-      } 100% {
-            transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
-            -webkit-transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
-        }
+    }
+    50% {
+        transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg);
+        -webkit-transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg)
+    }
+    100% {
+        transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
+        -webkit-transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
+    }
 }
 
-.fanyi8editor>.drag{
-    width:100%;
-    height:100%;
+.fanyi8editor > .drag {
+    width: 100%;
+    height: 100%;
     background: #fff;
-    opacity:0.8;
-    z-index:1000;
+    opacity: 0.8;
+    z-index: 1000;
     position: absolute;
-    top:0;
-    left:0;
+    top: 0;
+    left: 0;
 }

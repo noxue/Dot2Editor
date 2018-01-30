@@ -3,12 +3,13 @@
 	//加载必须的js
 	loadScript();
 
-
 	window.FanYi8Editor = function (selector, opts) {
-
 
 		//下面是绑定到对象中的方法
 		this.addCommand = addCommand;
+
+		//添加一个菜单
+		this.addMenu = addMenu;
 
 		//保存配置信息
 		var config = opts || {};
@@ -16,31 +17,35 @@
 		//ace编辑器实例
 		var editor = null;
 
-		//是否开启实时预览，默认开启，当屏幕很窄的时候隐藏
-		var isPrev = true;
+		//是否全屏预览
+		var isFullPrev = false;
 
 		//是否开启编辑，当预览效果的时候隐藏编辑区域。
-		var isEdit = true;
+		var isFullEdit = false;
+
+
+		//编辑器id
+		var editor_id = "fanyi8editor-" + uuid();
+		//给编辑器设置唯一id，用于后面获取编辑器中的其他元素
+		$(selector + " .fanyi8editor").attr("id", editor_id);
 
 		//因为ace编辑器要求指定id来创建，考虑到同一个网页可能多个编辑器，所以就用唯一标识符来表示当前的编辑器
-		var id = "fanyi8editor-" + uuid();
-
-		//给编辑器设置唯一的id属性
-		$(selector + " .editor-content").attr("id", id);
+		var ace_editor_id = "ace_editor-" + uuid();
+		//给ace编辑器设置唯一的id属性
+		$(selector + " .editor-content").attr("id", ace_editor_id);
 
 		//编辑器节点（原生js获取的dom节点）
-		var editorNode = window.document.getElementById(id);
+		var editorNode = window.document.getElementById(ace_editor_id);
 
 		//初始化编辑器
 		initEditor();
-
 
 		/**
 		 * 初始化操作
 		 */
 		function initEditor() {
 			//创建ace编辑器实例
-			editor = ace.edit(id);
+			editor = ace.edit(ace_editor_id);
 			editor.setTheme('ace/theme/xcode');
 			editor.getSession().setMode('ace/mode/markdown');
 			editor.renderer.setShowPrintMargin(false);
@@ -63,7 +68,6 @@
 				$(selector + " .preview").html(marked(editor.getValue()));
 			});
 
-
 			//绑定滚动鼠标和Alt + - 改变文字大小
 			bindChangeFontSize();
 
@@ -76,6 +80,8 @@
 			//绑定默认的命令，比如Alt+s保存
 			bindCommands();
 
+			//添加默认的菜单
+			addMenus();
 		}
 
 		//绑定快捷命令
@@ -83,6 +89,17 @@
 			editor.commands.addCommand(command);
 		}
 
+		//添加菜单
+		function addMenu(menu){
+
+		}
+
+		/**
+		 * 添加所有的默认菜单
+		 */
+		function addMenus(){
+			addMenu();
+		}
 
 		function bindCommands() {
 			addCommand({
@@ -221,7 +238,6 @@
 				readOnly: true // 如果不需要使用只读模式，这里设置false
 			});
 
-
 			addCommand({
 				name: 'edit',
 				bindKey: {
@@ -229,8 +245,43 @@
 					mac: 'Alt-E'
 				},
 				exec: function (editor) {
+					if(!isFullEdit){ //如果不是，就全屏编辑
+						$("#"+editor_id + " .editor-column").css("width","100%");
+						$("#"+editor_id + " .preview-column").hide();
+						isFullEdit = true;
+					} else {
+						$("#"+editor_id + " .editor-column").css("width","50%");
+						$("#"+editor_id + " .preview-column").show(500);
+						isFullEdit = false;
+					}
+					editor.resize();
+				},
+				readOnly: false // 如果不需要使用只读模式，这里设置false
+			});
 
+			addCommand({
+				name: 'preview',
+				bindKey: {
+					win: 'Alt-P',
+					mac: 'Alt-P'
+				},
+				exec: function (editor) {
+					if(!isFullPrev){ //如果不是，就全屏预览
+						$("#"+editor_id + " .preview-column").css("width","100%");
+						$("#"+editor_id + " .editor-column").hide();
 
+						(function(){
+							$("#"+editor_id + " .preview-column>.close-preview").css("display","block").click(function(){
+								$(this).css("display","none");
+								$("#"+editor_id + " .preview-column").css("width","50%");
+								$("#"+editor_id + " .editor-column").show(200);
+								isFullPrev = false;
+								editor.focus();
+							});
+						})();
+						isFullPrev = true;
+					}
+					editor.resize();
 				},
 				readOnly: false // 如果不需要使用只读模式，这里设置false
 			});
@@ -270,7 +321,8 @@
 		 * 绑定粘贴图片上传事件
 		 */
 		function bindPaste() {
-			window.document.getElementById(id).addEventListener("paste", function (e) {
+			//ace编辑器绑定粘贴事件，实现粘贴上传图片
+			window.document.getElementById(ace_editor_id).addEventListener("paste", function (e) {
 				var cbd = e.clipboardData;
 				var ua = window.navigator.userAgent;
 
@@ -462,7 +514,7 @@
 		 * 拖拽上传
 		 */
 		function bindDrag() {
-			var obj = document.getElementById(id);
+			var obj = document.getElementById(editor_id);
 			obj.addEventListener("dragenter", handler, false);
 			obj.addEventListener("dragover", handler, false);
 			obj.addEventListener("drop", upload, false);
