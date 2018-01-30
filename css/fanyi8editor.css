@@ -29,12 +29,20 @@
 
 .fanyi8editor > .toolbar > li {
     display: inline-block;
-    margin:auto 3px;
+    margin: 10px 0;
+    padding: 0 5px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
     cursor: pointer;
 }
 
 .fanyi8editor > .toolbar > li:hover{
     color: #4fb2ff;
+    background: #666;
+    -webkit-border-radius:3px;
+    -moz-border-radius:3px;
+    border-radius:3px;
 }
 
 .fanyi8editor > .container {
