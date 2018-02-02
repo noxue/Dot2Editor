@@ -5,6 +5,10 @@
 
 	window.FanYi8Editor = function (selector, opts) {
 
+
+		$(selector).html('<div class="fanyi8editor"><ul class="toolbar"></ul><div class="container"><div class="editor-column"><div class="panel-editor"><div class="editor-content"></div></div></div><div class="preview-column"><div class="panel-preview"><div class="preview markdown-body"></div></div><div class="close-preview"><i class="fa fa-close"></i></div></div><div style="clear:both;height:0; width:100%;"></div></div></div>');
+
+
 		//下面是绑定到对象中的方法
 		this.addCommand = addCommand;
 
@@ -24,18 +28,19 @@
 		var isFullEdit = false;
 
 
+		//因为ace编辑器要求指定id来创建，考虑到同一个网页可能多个编辑器，所以就用唯一标识符来表示当前的编辑器
+		var ace_editor_id = "ace_editor-" + uuid();
+		//给ace编辑器设置唯一的id属性,用于创建ace编辑器
+		$(selector + " .editor-content").attr("id", ace_editor_id);
+
 		//编辑器id
 		var editor_id = "fanyi8editor-" + uuid();
 		//给编辑器设置唯一id，用于后面获取编辑器中的其他元素
 		$(selector + " .fanyi8editor").attr("id", editor_id);
 
-		//因为ace编辑器要求指定id来创建，考虑到同一个网页可能多个编辑器，所以就用唯一标识符来表示当前的编辑器
-		var ace_editor_id = "ace_editor-" + uuid();
-		//给ace编辑器设置唯一的id属性
-		$(selector + " .editor-content").attr("id", ace_editor_id);
 
-		//编辑器节点（原生js获取的dom节点）
-		var editorNode = window.document.getElementById(ace_editor_id);
+		//工具栏节点
+		var toolbarNode = $("#" + editor_id + ">.toolbar");
 
 		//初始化编辑器
 		initEditor();
@@ -60,9 +65,6 @@
 
 			//让选中的行不高亮
 			editor.setHighlightActiveLine(false);
-
-			//一开始让编辑器获取焦点
-			editor.focus();
 
 			editor.on("change", function (e) {
 				$(selector + " .preview").html(marked(editor.getValue()));
@@ -90,14 +92,51 @@
 		}
 
 		//添加菜单
-		function addMenu(menu){
+		function addMenu(menu) {
 
+
+			var menu = {
+				name: "bold",
+				readOnly: true,
+				ele: '<li><i class="fa fa-bold"></i></li>',
+				exec: function (editor) {
+					var v = editor.getSelectedText();
+					if (v == "") {
+						var p = editor.getCursorPosition();
+						editor.insert("****");
+						p.column += 2;
+						editor.moveCursorToPosition(p);
+					} else {
+						editor.insert("**" + v + "**");
+					}
+				}
+			};
+
+			var ele = $('<li><i class="fa fa-bold"></i></li>').attr("name", menu.name);
+			toolbarNode.append(ele);
+			toolbarNode.find("[name='" + menu.name + "']:first").click(function () {
+
+				//只读，则设置只读
+				if (menu.readOnly){
+					editor.setReadOnly(true);
+				}
+
+				menu.exec(editor);
+
+				//只读，则需要解除只读
+				if (menu.readOnly){
+					editor.setReadOnly(false);
+				}
+
+				//点击工具栏执行函数之后需要把焦点设置回编辑器
+				editor.focus();
+			});
 		}
 
 		/**
 		 * 添加所有的默认菜单
 		 */
-		function addMenus(){
+		function addMenus() {
 			addMenu();
 		}
 
@@ -159,7 +198,6 @@
 					h(i + 1);
 			}
 
-
 			//a标签
 			addCommand({
 				name: 'a',
@@ -205,7 +243,6 @@
 				readOnly: true // 如果不需要使用只读模式，这里设置false
 			});
 
-
 			//hr
 			addCommand({
 				name: 'hr',
@@ -245,13 +282,13 @@
 					mac: 'Alt-E'
 				},
 				exec: function (editor) {
-					if(!isFullEdit){ //如果不是，就全屏编辑
-						$("#"+editor_id + " .editor-column").css("width","100%");
-						$("#"+editor_id + " .preview-column").hide();
+					if (!isFullEdit) { //如果不是，就全屏编辑
+						$("#" + editor_id + " .editor-column").css("width", "100%");
+						$("#" + editor_id + " .preview-column").hide();
 						isFullEdit = true;
 					} else {
-						$("#"+editor_id + " .editor-column").css("width","50%");
-						$("#"+editor_id + " .preview-column").show(500);
+						$("#" + editor_id + " .editor-column").css("width", "50%");
+						$("#" + editor_id + " .preview-column").show(500);
 						isFullEdit = false;
 					}
 					editor.resize();
@@ -266,15 +303,15 @@
 					mac: 'Alt-P'
 				},
 				exec: function (editor) {
-					if(!isFullPrev){ //如果不是，就全屏预览
-						$("#"+editor_id + " .preview-column").css("width","100%");
-						$("#"+editor_id + " .editor-column").hide();
+					if (!isFullPrev) { //如果不是，就全屏预览
+						$("#" + editor_id + " .preview-column").css("width", "100%");
+						$("#" + editor_id + " .editor-column").hide();
 
-						(function(){
-							$("#"+editor_id + " .preview-column>.close-preview").css("display","block").click(function(){
-								$(this).css("display","none");
-								$("#"+editor_id + " .preview-column").css("width","50%");
-								$("#"+editor_id + " .editor-column").show(200);
+						(function () {
+							$("#" + editor_id + " .preview-column>.close-preview").css("display", "block").click(function () {
+								$(this).css("display", "none");
+								$("#" + editor_id + " .preview-column").css("width", "50%");
+								$("#" + editor_id + " .editor-column").show(200);
 								isFullPrev = false;
 								editor.focus();
 							});
@@ -314,7 +351,6 @@
 				},
 				readOnly: true // 如果不需要使用只读模式，这里设置false
 			});
-
 		}
 
 		/**
@@ -374,9 +410,7 @@
 			formData.append(config.upload.name, file);
 
 			if (config.upload.kvs) {
-
 				var kvs = config.upload.kvs;
-
 				//如果是一个函数，就调用并获取返回值，配置一个函数的区别是，每次都会调用
 				if (typeof kvs === "function") {
 					kvs = kvs();
@@ -407,10 +441,9 @@
 				processData: false,
 				// 告诉jQuery不要去设置Content-Type请求头
 				contentType: false,
-				beforeSend: function () {
-					if (window.console)
-						console.log("正在进行，请稍候");
-				},
+				// beforeSend: function () {
+				//
+				// },
 				success: function (res) {
 					if (res.code == 0) {
 						if (res.isImage) {
@@ -433,7 +466,6 @@
 				}
 			});
 		}
-
 
 		/**
 		 * 改变文字大小
@@ -509,7 +541,6 @@
 			}, false);
 		}
 
-
 		/**
 		 * 拖拽上传
 		 */
@@ -539,7 +570,6 @@
 
 	};
 
-
 	/**
 	 * 加载编辑器依赖的 ace 和 markd
 	 */
@@ -549,14 +579,14 @@
 		var thisNode = $("#" + tmp_node).prev("script");
 		$('#' + tmp_node).remove();
 
-		$(thisNode).before($('<script src="./js/marked.min.js"></script>'));
-		$(thisNode).before($('<script src="./js/ace/ace.js"></script>'));
+		//引入js不能写死，防止编辑器放到二级目录下
+		var path = $(thisNode).attr("src");
+		path = path.substring(0, path.lastIndexOf('/'));
+		$(thisNode).before($('<script src="' + path + '/libs/marked.min.js"></script>'));
+		$(thisNode).before($('<script src="' + path + '/libs/ace/ace.js"></script>'));
 	}
 
-
 	//下面放一些工具函数
-
-
 	function uuid() {
 		var s = [];
 		var hexDigits = "0123456789abcdef";
