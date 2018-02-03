@@ -5,12 +5,13 @@
 
 	window.FanYi8Editor = function (selector, opts) {
 
-
 		$(selector).html('<div class="fanyi8editor"><ul class="toolbar"></ul><div class="container"><div class="editor-column"><div class="panel-editor"><div class="editor-content"></div></div></div><div class="preview-column"><div class="panel-preview"><div class="preview markdown-body"></div></div><div class="close-preview"><i class="fa fa-close"></i></div></div><div style="clear:both;height:0; width:100%;"></div></div></div>');
-
 
 		//下面是绑定到对象中的方法
 		this.addCommand = addCommand;
+
+		//保存菜单
+		var menus = {};
 
 		//添加一个菜单
 		this.addMenu = addMenu;
@@ -27,7 +28,6 @@
 		//是否开启编辑，当预览效果的时候隐藏编辑区域。
 		var isFullEdit = false;
 
-
 		//因为ace编辑器要求指定id来创建，考虑到同一个网页可能多个编辑器，所以就用唯一标识符来表示当前的编辑器
 		var ace_editor_id = "ace_editor-" + uuid();
 		//给ace编辑器设置唯一的id属性,用于创建ace编辑器
@@ -38,12 +38,15 @@
 		//给编辑器设置唯一id，用于后面获取编辑器中的其他元素
 		$(selector + " .fanyi8editor").attr("id", editor_id);
 
-
 		//工具栏节点
 		var toolbarNode = $("#" + editor_id + ">.toolbar");
 
 		//初始化编辑器
+		initMenus();
+
+		//初始化编辑器
 		initEditor();
+
 
 		/**
 		 * 初始化操作
@@ -57,7 +60,7 @@
 			editor.setHighlightGutterLine(false);
 			editor.setFontSize(16);
 			editor.setOptions({
-				wrap: "free", //自动换行
+				wrap: "free" //自动换行
 			});
 
 			//阻止控制台的警告信息
@@ -91,11 +94,9 @@
 			editor.commands.addCommand(command);
 		}
 
-		//添加菜单
-		function addMenu(menu) {
+		function initMenus() {
 
-
-			var menu = {
+			addMenu({
 				name: "bold",
 				readOnly: true,
 				ele: '<li><i class="fa fa-bold"></i></li>',
@@ -110,34 +111,185 @@
 						editor.insert("**" + v + "**");
 					}
 				}
-			};
-
-			var ele = $('<li><i class="fa fa-bold"></i></li>').attr("name", menu.name);
-			toolbarNode.append(ele);
-			toolbarNode.find("[name='" + menu.name + "']:first").click(function () {
-
-				//只读，则设置只读
-				if (menu.readOnly){
-					editor.setReadOnly(true);
-				}
-
-				menu.exec(editor);
-
-				//只读，则需要解除只读
-				if (menu.readOnly){
-					editor.setReadOnly(false);
-				}
-
-				//点击工具栏执行函数之后需要把焦点设置回编辑器
-				editor.focus();
 			});
+
+			for (var i = 1; i < 7; i++) {
+				(function (i) {
+					addMenu({
+						name: "h" + i,
+						readOnly: true,
+						ele: '<li><b>H' + i + '</b></li>',
+						exec: function (editor) {
+							//移到行首
+							editor.navigateLineStart();
+							editor.insert(repeat("#", i) + " ");
+							//移到行尾
+							editor.navigateLineEnd();
+						}
+					});
+				})(i);
+			}
+
+
+			addMenu({
+				name: "link",
+				readOnly: true,
+				ele: '<li><i class="fa fa-link"></i></li>',
+				exec: function (editor) {
+					var p = editor.getCursorPosition();
+					var v = editor.getSelectedText();
+					if (v == "") {
+						editor.insert("[]()");
+						p.column += 1;
+						editor.moveCursorToPosition(p);
+					} else {
+						//删除原有内容，然后添加组合的内容
+						editor.remove();
+						//获取最新的位置
+						p = editor.getCursorPosition();
+						//计算输入链接的坐标位置
+						p.column += (3 + v.length);
+						editor.insert("[" + v + "]()");
+						//让光标移动到填写链接的地方
+						editor.moveCursorToPosition(p);
+					}
+				}
+			});
+
+			addMenu({
+				name: "img",
+				readOnly: true,
+				ele: '<li><i class="fa fa-picture-o"></i></li>',
+				exec: function (editor) {
+					var p = editor.getCursorPosition();
+					editor.insert("![]()");
+					p.column += 4;
+					editor.moveCursorToPosition(p);
+				}
+			});
+
+
+			addMenu({
+				name: "hr",
+				readOnly: true,
+				ele: '<li><i class="fa fa-minus"></i></li>',
+				exec: function (editor) {
+					var p = editor.getCursorPosition();
+					editor.insert("***");
+					p.column += 3;
+					editor.moveCursorToPosition(p);
+				}
+			});
+
+			addMenu({
+				name: "edit",
+				readOnly: true,
+				ele: '<li><i class="fa fa-eye-slash"></i></li>',
+				exec: function (editor) {
+					if (!isFullEdit && !isFullPrev) { //如果不是全屏编辑并且不是全屏预览的时候，就全屏编辑
+						$("#" + editor_id + " .editor-column").css("width", "100%");
+						$("#" + editor_id + " .preview-column").hide();
+						isFullEdit = true;
+					} else {
+						$("#" + editor_id + " .editor-column").css("width", "50%");
+						$("#" + editor_id + " .preview-column").show(500);
+						isFullEdit = false;
+					}
+					editor.resize();
+				}
+			});
+
+			addMenu({
+				name: "preview",
+				readOnly: true,
+				ele: '<li><i class="fa fa-eye"></i></li>',
+				exec: function (editor) {
+					if (!isFullPrev) { //如果不是，就全屏预览
+						$("#" + editor_id + " .preview-column").css("width", "100%");
+						$("#" + editor_id + " .editor-column").hide();
+
+						(function () {
+							$("#" + editor_id + " .preview-column>.close-preview").css("display", "block").click(function () {
+								$(this).css("display", "none");
+								$("#" + editor_id + " .preview-column").css("width", "50%");
+								$("#" + editor_id + " .editor-column").show(200);
+								isFullPrev = false;
+								editor.focus();
+							});
+						})();
+						isFullPrev = true;
+					}
+					editor.resize();
+				}
+			});
+
+			addMenu({
+				name: "table",
+				readOnly: true,
+				ele: '<li><i class="fa fa-table"></i></li>',
+				exec: function (editor) {
+					var str = window.prompt("请输入行和列，用空格隔开，例如：3 5  就表示生成一个3行5列的表格");
+					if (!str) {
+						return;
+					}
+
+					var arr = str.split(/\s+/);
+					if (arr.length < 2) {
+						alert("请输入正确的行和列数据");
+						return;
+					}
+					var row = arr[0];
+					var column = arr[1];
+
+					editor.insert("|" + repeat("|", column - 2) + "\n" +
+						"-|-" + repeat("|-", column - 2) + "\n" +
+						"|" + repeat("|", column - 2) + "\n"
+						+ repeat("|" + repeat("|", column - 2) + "\n", row - 2));
+				}
+			});
+
+			addMenu({
+				name: "help",
+				readOnly: true,
+				ele: '<li><a href="http://blog.noxue.com/article/494.html" style="color:#fff;" target="_blank"><i class="fa fa-question-circle"></i></a></li>',
+				exec: function (editor) {
+				}
+			});
+
+
+		}
+
+		//添加菜单
+		function addMenu(menu) {
+			menus[menu.name] = menu;
 		}
 
 		/**
 		 * 添加所有的默认菜单
 		 */
 		function addMenus() {
-			addMenu();
+
+			for (var key in menus) {
+				var menu = menus[key];
+				(function (menu) {
+					var ele = $(menu.ele).attr("name", menu.name);
+					toolbarNode.append(ele);
+					toolbarNode.find("[name='" + menu.name + "']:first").click(function () {
+						//只读，则设置只读
+						if (menu.readOnly) {
+							editor.setReadOnly(true);
+						}
+						menu.exec(editor);
+						//只读，则需要解除只读
+						if (menu.readOnly) {
+							editor.setReadOnly(false);
+						}
+						//点击工具栏执行函数之后需要把焦点设置回编辑器
+						editor.focus();
+					});
+				})(menu);
+			}
+
 		}
 
 		function bindCommands() {
@@ -174,28 +326,25 @@
 				readOnly: true // 如果不需要使用只读模式，这里设置false
 			});
 
-			//调用函数开始绑定h1-h6
-			h(1);
 			//绑定h1-h6的快捷键
-			function h(i) {
-				addCommand({
-					name: 'H' + i,
-					bindKey: {
-						win: 'Alt-' + i,
-						mac: 'Alt-' + i
-					},
-					exec: function (editor) {
-						//移到行首
-						editor.navigateLineStart();
-						editor.insert(repeat("#", i) + " ");
-						//移到行尾
-						editor.navigateLineEnd();
-					},
-					readOnly: true // 如果不需要使用只读模式，这里设置false
-				});
-				//如果定不等于6，就调用自身。这里用循环变量有问题，所以采用递归的方式
-				if (i < 7)
-					h(i + 1);
+			for (var i = 1; i < 7; i++) {
+				(function (i) {
+					addCommand({
+						name: 'H' + i,
+						bindKey: {
+							win: 'Alt-' + i,
+							mac: 'Alt-' + i
+						},
+						exec: function (editor) {
+							//移到行首
+							editor.navigateLineStart();
+							editor.insert(repeat("#", i) + " ");
+							//移到行尾
+							editor.navigateLineEnd();
+						},
+						readOnly: true // 如果不需要使用只读模式，这里设置false
+					});
+				})(i);
 			}
 
 			//a标签
@@ -282,7 +431,7 @@
 					mac: 'Alt-E'
 				},
 				exec: function (editor) {
-					if (!isFullEdit) { //如果不是，就全屏编辑
+					if (!isFullEdit && !isFullPrev) { //如果不是，就全屏编辑
 						$("#" + editor_id + " .editor-column").css("width", "100%");
 						$("#" + editor_id + " .preview-column").hide();
 						isFullEdit = true;
@@ -388,7 +537,7 @@
 						}
 						// blob 就是从剪切板获得的文件 可以进行上传或其他操作
 						editor.setReadOnly(true);
-						uploadImg(blob);
+						uploadFile(blob);
 					}
 				}
 			}, false);
@@ -401,7 +550,8 @@
 		 * ajax方式上传图片
 		 * @param file 文件的内容
 		 */
-		function uploadImg(file) {
+		function uploadFile(file) {
+
 			uploadStatus = true;
 			var animateHtml = '<div class="fanyi8editor_upload_image_loader"></div>';
 			$("body").append($(animateHtml));
@@ -441,9 +591,6 @@
 				processData: false,
 				// 告诉jQuery不要去设置Content-Type请求头
 				contentType: false,
-				// beforeSend: function () {
-				//
-				// },
 				success: function (res) {
 					if (res.code == 0) {
 						if (res.isImage) {
@@ -452,14 +599,14 @@
 							editor.insert("[" + res.alt + "](" + res.src + ")");
 						}
 					} else {
-						alert(res);
+						alert(res.errMsg);
 					}
 					editor.setReadOnly(false);
 					uploadStatus = false;
 					$(".fanyi8editor_upload_image_loader").remove();
 				},
 				error: function (responseStr) {
-					console.log("error");
+					console.log(responseStr)
 					editor.setReadOnly(false);
 					uploadStatus = false;
 					$(".fanyi8editor_upload_image_loader").remove();
@@ -557,7 +704,7 @@
 				for (var i = 0, il = files.length; i < il; i++) {
 					//如果是文件夹，就不处理
 					if (files[i].size == 0) continue;
-					uploadImg(files[i]);
+					uploadFile(files[i]);
 				}
 			}
 
