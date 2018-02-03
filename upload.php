@@ -15,7 +15,7 @@ $name = "image";
     {
         $ext = substr($_FILES[$name]["name"], strrpos($_FILES[$name]["name"], '.') + 1);
 
-        if(!in_array($ext,['jpg','gif','bmp','zip','rar'])){
+        if(!in_array($ext,['jpg','png','gif','bmp','zip','rar'])){
             echo  json_encode([
                 "code"=>-1,
                 "errMsg"=>"只支持上传jpg,gif,bmp,png,zip,rar文件"
