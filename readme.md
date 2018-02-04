@@ -5,6 +5,9 @@
 
 ![](http://www.noxue.com/template/wekei_sim_1703_color/images/logo.png)
 
+## 项目地址 
+
+<https://github.com/noxue/fanyi8editor>
 
 ## 目前功能
 
