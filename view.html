@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        html, body {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+<div style=" width:90%; margin:auto;">
+    <div style="width:100%;margin:auto;" id="view">
+    <textarea style="display:none"># 这是渲染本地内容
+    </textarea>
+    </div>
+
+
+    <h1>下面是渲染ajax请求内容</h1>
+    <div style="padding:20px;border-top:5px solid #00b0e8;margin:auto;" id="view1"></div>
+
+</div>
+
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+<script src="http://127.0.0.10/fanyi8editor.js"></script>
+<script>
+	//第一种方式显示内容
+	FanYi8Editor.parse("#view");
+
+	//第二种方式
+	$.get("./readme.md", function (res) {
+		$("#view1").html(FanYi8Editor.md2html(res));
+	});
+</script>
+
+</body>
+
+</html>

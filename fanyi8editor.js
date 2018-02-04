@@ -5,16 +5,22 @@
 
 	window.FanYi8Editor = function (selector, opts) {
 
-		$(selector).html('<div class="fanyi8editor"><ul class="toolbar"></ul><div class="container"><div class="editor-column"><div class="panel-editor"><div class="editor-content"></div></div></div><div class="preview-column"><div class="panel-preview"><div class="preview markdown-body"></div></div><div class="close-preview"><i class="fa fa-close"></i></div></div><div style="clear:both;height:0; width:100%;"></div></div></div>');
+		$(selector).append('<div class="fanyi8editor"><ul class="toolbar"></ul><div class="container"><div class="editor-column"><div class="panel-editor"><div class="editor-content"></div></div></div><div class="preview-column"><div class="panel-preview"><div class="preview markdown-body"></div></div><div class="close-preview"><i class="fa fa-close"></i></div></div><div style="clear:both;height:0; width:100%;"></div></div></div>');
 
 		//下面是绑定到对象中的方法
 		this.addCommand = addCommand;
 
-		//保存菜单
-		var menus = {};
-
 		//添加一个菜单
 		this.addMenu = addMenu;
+
+
+
+		this.getMarkdown = getMarkdown;
+		this.setMarkdown = setMarkdown;
+		this.getHtml = getHtml;
+
+		//保存菜单
+		var menus = {};
 
 		//保存配置信息
 		var config = opts || {};
@@ -47,7 +53,6 @@
 		//初始化编辑器
 		initEditor();
 
-
 		/**
 		 * 初始化操作
 		 */
@@ -69,9 +74,8 @@
 			//让选中的行不高亮
 			editor.setHighlightActiveLine(false);
 
-			editor.on("change", function (e) {
-				$(selector + " .preview").html(marked(editor.getValue()));
-			});
+			//初始化内容改变相关的操作
+			initChange();
 
 			//绑定滚动鼠标和Alt + - 改变文字大小
 			bindChangeFontSize();
@@ -88,6 +92,45 @@
 			//添加默认的菜单
 			addMenus();
 		}
+
+		//更新内容到预览窗口和textarea
+		function editorChange() {
+			//记录编辑器中是否存在textarea
+			var hasTextarea = $(selector + ">textarea").length > 0;
+
+			$(selector + " .preview").html(getHtml());
+			if (hasTextarea) {
+				$(selector + ">textarea").val(editor.getValue());
+			}
+		}
+
+		function initChange() {
+			//记录编辑器中是否存在textarea
+			var hasTextarea = $(selector + ">textarea").length > 0;
+			if (hasTextarea) {
+				$(selector + ">textarea").css('display', 'none');
+				editor.insert($(selector + ">textarea").val());
+				editorChange(); //插入后更新渲染
+			}
+			//编辑器内容改变
+			editor.on("change", editorChange);
+		}
+
+		function setMarkdown(markdownContent){
+			editor.insert($(selector + ">textarea").val());
+			editorChange(); //插入后更新渲染
+		}
+
+		function getMarkdown() {
+			return editor.getValue();
+		}
+
+		//获取处理后的html
+		function getHtml() {
+			return md2html(getMarkdown());
+		}
+
+
 
 		//绑定快捷命令
 		function addCommand(command) {
@@ -717,6 +760,13 @@
 
 	};
 
+	window.FanYi8Editor.parse=function(selector){
+		var html = md2html($(selector+">textarea:first").val());
+		$(selector).html(html);
+	};
+	window.FanYi8Editor.md2html=function(markdownContent){
+		return md2html(markdownContent);
+	};
 	/**
 	 * 加载编辑器依赖的 ace 和 markd
 	 */
@@ -730,7 +780,35 @@
 		var path = $(thisNode).attr("src");
 		path = path.substring(0, path.lastIndexOf('/'));
 		$(thisNode).before($('<script src="' + path + '/libs/marked.min.js"></script>'));
+
+		$(thisNode).before($('<link rel="stylesheet" href="' + path + '/css/font-awesome.min.css">'));
+		$(thisNode).before($('<link rel="stylesheet" href="' + path + '/css/fanyi8editor.css">'));
+		$(thisNode).before($('<link rel="stylesheet" href="' + path + '/css/markdown.css">'));
+
+		//语法高亮
+		$(thisNode).before($('<script src="' + path + '/libs/highlight/highlight.min.js"></script>'));
+		$(thisNode).before($('<link rel="stylesheet" href="' + path + '/libs/highlight/styles/github.css">'));
+		hljs.initHighlightingOnLoad();
+
+
 		$(thisNode).before($('<script src="' + path + '/libs/ace/ace.js"></script>'));
+	}
+
+	function md2html(md){
+		marked.setOptions({
+			renderer: new marked.Renderer(),
+			gfm: true,
+			tables: true,
+			breaks: true,
+			pedantic: false,
+			sanitize: true,
+			smartLists: true,
+			smartypants: false,
+			highlight: function (code) {
+				return hljs.highlightAuto(code).value;
+			}
+		});//基本设置
+		return marked(md);
 	}
 
 	//下面放一些工具函数
