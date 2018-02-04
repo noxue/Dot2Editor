@@ -76,7 +76,7 @@
 ### getHtml()
 获取编辑器解析后的html代码
 
-### markdown转html显示处理
+## markdown转html显示处理
 
 请参考view.html的源代码
 
